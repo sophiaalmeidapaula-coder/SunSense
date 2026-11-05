@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SunSense — Sensores de Luz & Radiação Solar</title>
+<meta name="description" content="Guia educativo interativo sobre sensores de luz (LDR, fotodiodo) e radiação solar. Simuladores, calculadora solar e quiz.">
+<meta name="theme-color" content="#FFD166">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --sun-1: #FFD166;
+    --sun-2: #FF9F1C;
+    --sun-3: #E85D04;
+    --sky-1: #1B2A4E;
+    --sky-2: #2C3E6B;
+    --sky-3: #4A5FA0;
+    --bg: #0F1626;
+    --card: #1A2340;
+    --text: #E8ECF4;
+    --muted: #A8B2C9;
+    --accent: #FFD166;
+    --danger: #EF476F;
+    --success: #06D6A0;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 90vh;
+    background:
+      radial-gradient(circle at 70% 30%, rgba(255,209,102,0.35), transparent 50%),
+      radial-gradient(circle at 20% 80%, rgba(232,93,4,0.25), transparent 50%),
+      linear-gradient(135deg, #0F1626 0%, #1B2A4E 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .sun {
+    position: absolute;
+    top: 8%;
+    right: 12%;
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle, #FFD166 0%, #FF9F1C 50%, transparent 75%);
+    border-radius: 50%;
+    filter: blur(2px);
+    animation: pulse 4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.08); opacity: 1; }
+  }
+  .hero-content { max-width: 900px; position: relative; z-index: 2; }
+  .hero .logo {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    background: linear-gradient(90deg, #FFD166, #FF9F1C, #E85D04);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 0.5rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+  }
+  .hero .logo::before { content: "☀️ "; -webkit-text-fill-color: initial; }
+  .hero .tagline {
+    font-size: 1.1rem;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .hero p {
+    font-size: 1.2rem;
+    color: var(--muted);
+    max-width: 700px;
+    margin: 0 auto 2rem;
+  }
+  .tags { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; }
+  .tag {
+    background: rgba(255,209,102,0.12);
+    border: 1px solid rgba(255,209,102,0.3);
+    padding: 0.5rem 1.2rem;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    color: var(--accent);
+  }
+  .hero-cta {
+    display: inline-block;
+    margin-top: 2rem;
+    padding: 0.9rem 2rem;
+    background: linear-gradient(135deg, var(--sun-2), var(--sun-3));
+    color: #fff;
+    text-decoration: none;
+    border-radius: 30px;
+    font-weight: 600;
+    box-shadow: 0 6px 20px rgba(255,159,28,0.3);
+    transition: transform 0.2s;
+  }
+  .hero-cta:hover { transform: translateY(-2px); }
+
+  /* NAV */
+  nav {
+    background: rgba(15,22,38,0.95);
+    backdrop-filter: blur(10px);
+    padding: 1rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid rgba(255,209,102,0.15);
+  }
+  nav ul {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.3s;
+  }
+  nav a:hover { color: var(--accent); }
+
+  /* SECTIONS */
+  section {
+    padding: 5rem 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .section-title {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .section-subtitle {
+    color: var(--muted);
+    margin-bottom: 3rem;
+    font-size: 1.05rem;
+  }
+
+  /* CARDS */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: transform 0.3s, border-color 0.3s;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255,209,102,0.4);
+  }
+  .card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+  .card h3 { color: var(--accent); margin-bottom: 0.75rem; font-size: 1.3rem; }
+  .card p { color: var(--muted); }
+
+  /* SPECTRUM */
+  .spectrum-container {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+  }
+  .spectrum {
+    height: 60px;
+    border-radius: 8px;
+    background: linear-gradient(90deg,
+      #2d0040 0%, #4B0082 10%, #0000FF 20%, #00FFFF 30%,
+      #00FF00 40%, #FFFF00 55%, #FFA500 70%, #FF0000 85%, #400000 100%);
+    position: relative;
+    margin: 2rem 0 1rem;
+    cursor: crosshair;
+  }
+  .spectrum-labels {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .spectrum-markers {
+    position: absolute;
+    top: -25px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+
+  /* INFO BOX */
+  .info-box {
+    background: linear-gradient(135deg, rgba(255,209,102,0.1), rgba(232,93,4,0.05));
+    border-left: 4px solid var(--accent);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+  }
+  .info-box strong { color: var(--accent); }
+
+  /* TABLE */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 2rem 0;
+    border-radius: 16px;
+    background: var(--card);
+  }
+  table { width: 100%; border-collapse: collapse; min-width: 600px; }
+  th {
+    background: linear-gradient(135deg, var(--sun-3), var(--sun-2));
+    color: #fff;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+  }
+  td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: var(--muted);
+  }
+  tr:hover td { background: rgba(255,209,102,0.03); }
+  td:first-child { color: var(--text); font-weight: 500; }
+
+  /* DIAGRAM */
+  .diagram {
+    background: var(--card);
+    padding: 2rem;
+    border-radius: 16px;
+    margin: 2rem 0;
+    text-align: center;
+  }
+  .diagram svg { max-width: 100%; height: auto; }
+
+  /* FORMULA */
+  .formula {
+    background: #0a1020;
+    border: 1px solid rgba(255,209,102,0.2);
+    padding: 1.25rem;
+    border-radius: 10px;
+    font-family: 'Courier New', monospace;
+    color: var(--accent);
+    text-align: center;
+    margin: 1rem 0;
+    font-size: 1.05rem;
+  }
+
+  /* STEPS */
+  .steps { counter-reset: step; margin: 2rem 0; }
+  .step {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    align-items: flex-start;
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--sun-2), var(--sun-3));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.3rem;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(255,159,28,0.3);
+  }
+  .step-content h4 { color: var(--accent); margin-bottom: 0.5rem; }
+  .step-content p { color: var(--muted); }
+
+  /* LIMITATIONS */
+  .limit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+  .limit-card {
+    background: var(--card);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-top: 3px solid var(--danger);
+  }
+  .limit-card h4 {
+    color: var(--danger);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .limit-card p { color: var(--muted); font-size: 0.95rem; }
+
+  /* DATA HIGHLIGHT */
+  .data-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+  .data-card {
+    background: linear-gradient(135deg, rgba(255,209,102,0.08), rgba(232,93,4,0.04));
+    border: 1px solid rgba(255,209,102,0.2);
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+  }
+  .data-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 0.25rem;
+  }
+  .data-label { color: var(--muted); font-size: 0.9rem; }
+
+  /* FOOTER */
+  footer {
+    background: #0a1020;
+    padding: 3rem 1.5rem 2rem;
+    text-align: center;
+    border-top: 1px solid rgba(255,209,102,0.15);
+    margin-top: 4rem;
+  }
+  footer .brand {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #FFD166, #FF9F1C);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 0.5rem;
+  }
+  footer p { color: var(--muted); margin-bottom: 0.5rem; }
+  footer .accent { color: var(--accent); }
+  .footer-links {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 1.5rem 0;
+  }
+  .footer-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover { color: var(--accent); }
+
+  code {
+    background: #0a1020;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    color: var(--accent);
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .sun { width: 100px; height: 100px; top: 5%; right: 5%; }
+    section { padding: 3rem 1rem; }
+    .section-title { font-size: 1.6rem; }
+    nav ul { gap: 1rem; }
+    nav a { font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="sun"></div>
+  <div class="hero-content">
+    <div class="logo">SunSense</div>
+    <div class="tagline">Sensores de Luz & Radiação Solar</div>
+    <p>Um mergulho profundo na física dos sensores fotoelétricos — LDRs, fotodiodos, simuladores interativos e sua aplicação na medição da energia que vem do Sol.</p>
+    <div class="tags">
+      <span class="tag">☀️ Radiação Solar</span>
+      <span class="tag">💡 LDR</span>
+      <span class="tag">⚡ Fotodiodo</span>
+      <span class="tag">📡 Espectro EM</span>
+      <span class="tag">🎮 Simuladores</span>
+    </div>
+    <a href="#espectro" class="hero-cta">🚀 Começar a explorar</a>
+  </div>
+</header>
+
+<!-- ============ NAV ============ -->
+<nav>
+  <ul>
+    <li><a href="#espectro">Espectro EM</a></li>
+    <li><a href="#ldr">LDR</a></li>
+    <li><a href="#fotodiodo">Fotodiodo</a></li>
+    <li><a href="#comparacao">Comparação</a></li>
+    <li><a href="#medicao">Medição</a></li>
+    <li><a href="#coletor">Coletor Solar</a></li>
+    <li><a href="#simuladores">Simuladores</a></li>
+    <li><a href="#limitacoes">Limitações</a></li>
+    <li><a href="#quiz">Quiz</a></li>
+  </ul>
+</nav>
+
+<!-- ============ ESPECTRO ============ -->
+<section id="espectro">
+  <h2 class="section-title">🌈 Radiação Eletromagnética e o Sol</h2>
+  <p class="section-subtitle">A base física de tudo que medimos com sensores de luz</p>
+
+  <p style="color:var(--muted); margin-bottom:1.5rem;">
+    A radiação eletromagnética é uma forma de energia que se propaga no vácuo na forma de ondas compostas por campos elétricos e magnéticos oscilantes perpendicularmente. O <strong style="color:var(--accent)">Sol</strong> é uma estrela de classe G2V com temperatura superficial de aproximadamente <strong style="color:var(--accent)">5.778 K</strong>, irradiando energia em um espectro contínuo que se aproxima de um <em>corpo negro</em>.
+  </p>
+
+  <div class="data-row">
+    <div class="data-card">
+      <div class="data-value">1361 W/m²</div>
+      <div class="data-label">Constante Solar (fora da atmosfera)</div>
+    </div>
+    <div class="data-card">
+      <div class="data-value">~1000 W/m²</div>
+      <div class="data-label">Irradiância ao meio-dia (AM1.5)</div>
+    </div>
+    <div class="data-card">
+      <div class="data-value">380–780 nm</div>
+      <div class="data-label">Faixa do visível</div>
+    </div>
+    <div class="data-card">
+      <div class="data-value">8 min 20 s</div>
+      <div class="data-label">Tempo da luz Sol→Terra</div>
+    </div>
+  </div>
+
+  <div class="spectrum-container">
+    <h3 style="color:var(--accent); margin-bottom:0.5rem;">Espectro Eletromagnético <span style="font-size:0.9rem;color:var(--muted);">(passe o mouse para explorar)</span></h3>
+    <p style="color:var(--muted); font-size:0.95rem;">O Sol emite em praticamente todo o espectro, mas ~99% da energia está concentrada entre 0,15 µm e 4 µm.</p>
+    <div class="spectrum">
+      <div class="spectrum-markers">
+        <span>UV-C</span><span>UV-B</span><span>UV-A</span><span>Violeta</span><span>Azul</span><span>Verde</span><span>Amarelo</span><span>Laranja</span><span>Vermelho</span><span>IR</span>
+      </div>
+    </div>
+    <div class="spectrum-labels">
+      <span>~100 nm (UV)</span>
+      <span>380 nm</span>
+      <span>550 nm (pico sensibilidade olho)</span>
+      <span>780 nm</span>
+      <span>~2500 nm (IR)</span>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <strong>🔬 Massa de Ar (AM):</strong> O espectro solar na superfície é classificado pelo padrão <strong>AM1.5</strong> (ângulo de 48,2° do zênite), usado como referência mundial para testes de células fotovoltaicas. Ele considera a absorção por O₂, O₃, H₂O e CO₂ ao longo do caminho atmosférico.
+  </div>
+
+  <h3 style="color:var(--accent); margin:2rem 0 1rem;">Grandezas Radiométricas vs. Fotométricas</h3>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Grandeza</th><th>Tipo</th><th>Unidade SI</th><th>O que mede</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Irradiância</td><td>Radiométrica</td><td>W/m²</td><td>Potência por área (todas λ)</td></tr>
+        <tr><td>Iluminância</td><td>Fotométrica</td><td>Lux (lx)</td><td>Luz percebida pelo olho humano</td></tr>
+        <tr><td>Radiância</td><td>Radiométrica</td><td>W/(sr·m²)</td><td>Potência por ângulo sólido e área</td></tr>
+        <tr><td>Fluxo Luminoso</td><td>Fotométrica</td><td>Lúmen (lm)</td><td>Potência luminosa total</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="color:var(--muted); font-size:0.95rem;">
+    <strong style="color:var(--accent)">Atenção:</strong> Sensores como LDRs e fotodiodos comuns respondem a uma faixa espectral — não necessariamente à energia total. Isso é crucial ao medir radiação solar.
+  </p>
+</section>
+
+<!-- ============ LDR ============ -->
+<section id="ldr">
+  <h2 class="section-title">💡 O LDR — Resistor Dependente de Luz</h2>
+  <p class="section-subtitle">O sensor mais simples e didático para detectar luz</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-icon">🧪</div>
+      <h3>Material</h3>
+      <p>Feito de semicondutores como <strong>CdS</strong> (sulfeto de cádmio), <strong>CdSe</strong> ou <strong>PbS</strong>. O CdS é o mais comum em aplicações didáticas, com pico de sensibilidade próximo a 540 nm (verde-amarelo).</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚙️</div>
+      <h3>Princípio</h3>
+      <p>Baseia-se no efeito <strong>fotocondutivo</strong>: fótons com energia maior que o <em>bandgap</em> do material geram pares elétron-lacuna, aumentando a condutividade e reduzindo a resistência.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📉</div>
+      <h3>Curva Característica</h3>
+      <p>A resistência cai com a iluminância segundo uma lei de potência aproximada: <code>R ∝ E<sup>-γ</sup></code>, onde γ varia entre 0,7 e 1,0 para CdS.</p>
+    </div>
+  </div>
+
+  <div class="formula">
+    R(Lux) ≈ R₁₀ · (Lux / 10)<sup>-γ</sup> &nbsp; | &nbsp; Exemplo: CdS típico vai de ~1 MΩ (escuro) a ~100 Ω (10.000 lux)
+  </div>
+
+  <!-- SIMULADOR LDR -->
+  <div id="sim-ldr" style="margin:2rem 0;"></div>
+
+  <div class="diagram">
+    <h3 style="color:var(--accent); margin-bottom:1rem;">Circuito Típico com LDR (Divisor de Tensão)</h3>
+    <svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
+      <line x1="80" y1="60" x2="520" y2="60" stroke="#FFD166" stroke-width="2"/>
+      <line x1="80" y1="60" x2="80" y2="190" stroke="#FFD166" stroke-width="2"/>
+      <line x1="80" y1="190" x2="520" y2="190" stroke="#FFD166" stroke-width="2"/>
+      <line x1="520" y1="60" x2="520" y2="190" stroke="#FFD166" stroke-width="2"/>
+      <text x="40" y="65" fill="#FFD166" font-size="14" font-weight="bold">+5V</text>
+      <text x="40" y="195" fill="#A8B2C9" font-size="14">GND</text>
+      <rect x="140" y="50" width="80" height="20" fill="none" stroke="#06D6A0" stroke-width="2"/>
+      <text x="155" y="40" fill="#06D6A0" font-size="12">R fixo (10kΩ)</text>
+      <circle cx="380" cy="60" r="25" fill="none" stroke="#FF9F1C" stroke-width="2"/>
+      <text x="370" y="65" fill="#FF9F1C" font-size="14" font-weight="bold">LDR</text>
+      <line x1="350" y1="30" x2="365" y2="45" stroke="#FF9F1C" stroke-width="1.5"/>
+      <polygon points="365,45 360,42 362,47" fill="#FF9F1C"/>
+      <line x1="360" y1="30" x2="375" y2="45" stroke="#FF9F1C" stroke-width="1.5"/>
+      <polygon points="375,45 370,42 372,47" fill="#FF9F1C"/>
+      <circle cx="300" cy="60" r="4" fill="#FFD166"/>
+      <line x1="300" y1="60" x2="300" y2="130" stroke="#FFD166" stroke-width="2" stroke-dasharray="3,3"/>
+      <text x="310" y="145" fill="#FFD166" font-size="13">Vout → ADC</text>
+      <text x="150" y="220" fill="#E8ECF4" font-size="13" font-family="monospace">Vout = 5V × R_LDR / (R_fixo + R_LDR)</text>
+    </svg>
+  </div>
+
+  <div class="info-box">
+    <strong>⚠️ Importante:</strong> O LDR tem <strong>resposta lenta</strong> (dezenas a centenas de ms) e alta <strong>não-linearidade</strong>. É ótimo para detecção (acende/apaga luz), mas ruim para medição precisa de irradiância solar.
+  </div>
+
+  <h3 style="color:var(--accent); margin:2rem 0 1rem;">Como o LDR responde à luz?</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Absorção de fótons</h4>
+        <p>Fótons com energia <code>E = h·f</code> maior que o bandgap do CdS (~2,42 eV) são absorvidos, excitando elétrons da banda de valência para a banda de condução.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Geração de portadores</h4>
+        <p>Cada fóton absorvido gera um par elétron-lacuna, aumentando a densidade de portadores livres no material.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Queda de resistência</h4>
+        <p>Mais portadores = maior condutividade = menor resistência. No escuro, o CdS pode ter >1 MΩ; sob luz intensa, cai para ~100 Ω.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Leitura elétrica</h4>
+        <p>Em um divisor de tensão, essa variação de resistência se converte em variação de tensão, lida por um multímetro ou ADC de microcontrolador.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOTODIODO ============ -->
+<section id="fotodiodo">
+  <h2 class="section-title">⚡ O Fotodiodo — Precisão e Velocidade</h2>
+  <p class="section-subtitle">O sensor preferido para medições quantitativas de luz</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-icon">🔬</div>
+      <h3>Estrutura</h3>
+      <p>Junção PN (ou PIN) de silício, germânio ou InGaAs, encapsulada em lente epóxi transparente ou com janela de vidro filtrado.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚛️</div>
+      <h3>Efeito Fotovoltaico</h3>
+      <p>Fótons geram pares e-lac na região de depleção. O campo elétrico interno separa os portadores, gerando <strong>corrente proporcional à irradiância</strong>.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎯</div>
+      <h3>Linearidade</h3>
+      <p>A corrente de curto-circuito <code>I_sc</code> é <strong>estritamente linear</strong> com a irradiância em ampla faixa — ideal para medição científica.</p>
+    </div>
+  </div>
+
+  <h3 style="color:var(--accent); margin:2rem 0 1rem;">Modos de Operação</h3>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Modo</th><th>Polarização</th><th>Características</th><th>Uso</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Fotovoltaico</td><td>Sem polarização (0V)</td><td>Zero ruído térmico, gera tensão (~0,5V), baixa velocidade</td><td>Medição precisa, luxímetros</td></tr>
+        <tr><td>Fotocondutivo</td><td>Polarização reversa (-5V a -50V)</td><td>Resposta rápida (ns), maior linearidade, ruído de dark current</td><td>Comunicação óptica, pulsos</td></tr>
+        <tr><td>Avalanche (APD)</td><td>Alta reversa próxima à ruptura</td><td>Ganho interno (×100–1000), muito sensível</td><td>Detecção de fótons únicos</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="formula">
+    I_foto = η · (q · λ / h·c) · P_opt &nbsp; | &nbsp; Responsividade típica Si: 0,4–0,6 A/W a 800–900 nm
+  </div>
+
+  <div class="info-box">
+    <strong>🌟 Fotodiodos especializados para energia solar:</strong> Sensores como o <strong>BH1750</strong> (digital, calibrado em lux), <strong>TSL2591</strong> (com canais IR/vis) ou células de referência como o <strong>Si-1153</strong> (Newport) são usados em piranômetros de baixo custo para medição real de irradiância em W/m².
+  </div>
+
+  <div class="diagram">
+    <h3 style="color:var(--accent); margin-bottom:1rem;">Curva I × V de um Fotodiodo sob Iluminação</h3>
+    <svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+      <line x1="50" y1="150" x2="470" y2="150" stroke="#A8B2C9" stroke-width="1.5"/>
+      <line x1="250" y1="30" x2="250" y2="270" stroke="#A8B2C9" stroke-width="1.5"/>
+      <path d="M 60 150 Q 150 150 200 155 Q 240 160 250 200 Q 255 240 250 260" fill="none" stroke="#FFD166" stroke-width="2.5"/>
+      <path d="M 80 150 Q 160 150 210 153 Q 240 157 250 185 Q 254 220 250 240" fill="none" stroke="#FF9F1C" stroke-width="2.5"/>
+      <path d="M 110 150 Q 180 150 220 152 Q 245 155 250 170 Q 252 195 250 215" fill="none" stroke="#E85D04" stroke-width="2.5"/>
+      <text x="460" y="145" fill="#A8B2C9" font-size="12">V</text>
+      <text x="255" y="35" fill="#A8B2C9" font-size="12">I (+)</text>
+      <text x="255" y="265" fill="#A8B2C9" font-size="12">I (-)</text>
+      <circle cx="250" cy="200" r="4" fill="#FFD166"/>
+      <text x="260" y="205" fill="#FFD166" font-size="11">V_oc</text>
+      <circle cx="250" cy="150" r="4" fill="#E85D04"/>
+      <text x="190" y="140" fill="#E85D04" font-size="11">I_sc (curto)</text>
+      <text x="60" y="50" fill="#FFD166" font-size="11">● Alta irradiância</text>
+      <text x="60" y="70" fill="#FF9F1C" font-size="11">● Irradiância média</text>
+      <text x="60" y="90" fill="#E85D04" font-size="11">● Baixa irradiância</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ============ COMPARAÇÃO ============ -->
+<section id="comparacao">
+  <h2 class="section-title">⚖️ LDR vs. Fotodiodo</h2>
+  <p class="section-subtitle">Qual escolher para cada aplicação?</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Característica</th><th>LDR (CdS)</th><th>Fotodiodo (Si)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Princípio físico</td><td>Fotocondutividade</td><td>Efeito fotovoltaico / fotocondutivo</td></tr>
+        <tr><td>Faixa espectral</td><td>400–700 nm (pico ~540 nm)</td><td>190–1100 nm (pico ~900 nm)</td></tr>
+        <tr><td>Linearidade</td><td>Não-linear (logarítmica)</td><td>Altamente linear</td></tr>
+        <tr><td>Tempo de resposta</td><td>20–200 ms</td><td>ns a µs</td></tr>
+        <tr><td>Sensibilidade no escuro</td><td>Muito alta (R ~ MΩ)</td><td>Baixa (dark current ~nA)</td></tr>
+        <tr><td>Custo</td><td>Muito baixo (~R$ 1)</td><td>Baixo (~R$ 2–10)</td></tr>
+        <tr><td>Calibração</td><td>Difícil (variação entre unidades)</td><td>Fácil (responsividade conhecida)</td></tr>
+        <tr><td>Temperatura</td><td>Alta dependência</td><td>Moderada dependência</td></tr>
+        <tr><td>Aplicação típica</td><td>Acender luz automática</td><td>Medição científica, piranômetros</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-box">
+    <strong>💡 Regra prática:</strong> Use <strong>LDR</strong> quando precisar apenas detectar presença/ausência de luz ou quando o custo for crítico. Use <strong>fotodiodo</strong> quando precisar medir intensidade com precisão, linearidade ou em alta velocidade.
+  </div>
+</section>
+
+<!-- ============ MEDIÇÃO ============ -->
+<section id="medicao">
+  <h2 class="section-title">📊 Comparando Intensidade Luminosa</h2>
+  <p class="section-subtitle">Como medir e comparar a luz em diferentes posições</p>
+
+  <h3 style="color:var(--accent); margin-bottom:1rem;">Metodologia de Medição</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Escolha do sensor</h4>
+        <p>Para comparação relativa, qualquer sensor serve. Para valores absolutos em W/m², prefira fotodiodo calibrado ou célula de referência com filtro AM1.5.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Controle de variáveis</h4>
+        <p>Mantenha o sensor sempre <strong>perpendicular</strong> à fonte, na mesma altura, sem sombras próximas. Registre horário, temperatura e nebulosidade.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Aquisição de dados</h4>
+        <p>Colete leituras em intervalos regulares (ex.: 1 minuto). Use média de várias amostras para reduzir ruído. Arduino + ADC de 10 bits é suficiente para LDR.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Correção angular (Lei do Cosseno)</h4>
+        <p>A irradiância efetiva em uma superfície inclinada é <code>E = E₀ · cos(θ)</code>, onde θ é o ângulo entre a normal da superfície e a direção da luz.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="formula">
+    E(θ) = E₀ · cos(θ) &nbsp; | &nbsp; E(d) = P / (4π·d²) &nbsp; (Lei do inverso do quadrado, para fonte pontual)
+  </div>
+
+  <h3 style="color:var(--accent); margin:2rem 0 1rem;">Exemplo Prático: Variação Diurna</h3>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Horário</th><th>Altura Solar</th><th>Massa de Ar</th><th>Irradiância Aprox.</th><th>Iluminância Aprox.</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>06:00</td><td>~5°</td><td>AM 10+</td><td>~100 W/m²</td><td>~5.000 lux</td></tr>
+        <tr><td>09:00</td><td>~30°</td><td>AM 2</td><td>~500 W/m²</td><td>~30.000 lux</td></tr>
+        <tr><td>12:00</td><td>~70°</td><td>AM 1.1</td><td>~950 W/m²</td><td>~100.000 lux</td></tr>
+        <tr><td>15:00</td><td>~40°</td><td>AM 1.5</td><td>~700 W/m²</td><td>~60.000 lux</td></tr>
+        <tr><td>18:00</td><td>~5°</td><td>AM 10+</td><td>~80 W/m²</td><td>~3.000 lux</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-box">
+    <strong>📐 Dica experimental:</strong> Para comparar duas posições (ex.: telhado Norte vs. Oeste), meça <strong>simultaneamente</strong> com dois sensores idênticos, ou alterne rapidamente entre elas no mesmo instante do dia para evitar viés temporal.
+  </div>
+</section>
+
+<!-- ============ COLETOR SOLAR ============ -->
+<section id="coletor">
+  <h2 class="section-title">🏠 Posicionamento Ótimo de um Coletor Solar</h2>
+  <p class="section-subtitle">Usando sensores para encontrar o melhor ângulo e orientação</p>
+
+  <p style="color:var(--muted); margin-bottom:1.5rem;">
+    A energia coletada por um painel solar depende diretamente da irradiância que incide sobre ele. No <strong style="color:var(--accent)">Hemisfério Sul</strong> (como o Brasil), a orientação ideal é <strong style="color:var(--accent)">Norte geográfico</strong>, com inclinação próxima à latitude local.
+  </p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-icon">🧭</div>
+      <h3>Orientação (Azimute)</h3>
+      <p>No Brasil: <strong>Norte verdadeiro</strong> (0°). Desvios de até ±30° causam perdas de apenas 5–10%. Leste/Oeste perdem ~15–25%.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📐</div>
+      <h3>Inclinação (Tilt)</h3>
+      <p>Regra prática: <strong>inclinação ≈ latitude local</strong>. Em São Paulo (~23°S), use ~23°. Ajustes sazonais podem otimizar em ±10°.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌳</div>
+      <h3>Sombreamento</h3>
+      <p>Uma sombra de 10% na área do painel pode causar <strong>perda de 50% ou mais</strong> da potência (efeito em strings série). Evite árvores, chaminés, caixas d'água.</p>
+    </div>
+  </div>
+
+  <!-- CALCULADORA SOLAR -->
+  <div id="calc-solar" style="margin:2rem 0;"></div>
+
+  <!-- SIMULADOR DE COLETOR -->
+  <div id="sim-coletor" style="margin:2rem 0;"></div>
+
+  <h3 style="color:var(--accent); margin:2rem 0 1rem;">🔬 Experimento: Mapeamento com Sensor</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Monte um suporte giratório</h4>
+        <p>Fixe o fotodiodo em um suporte que permita variar azimute (0–360°) e inclinação (0–90°) com escalas graduadas.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Varra o espaço angular</h4>
+        <p>A cada 10° de azimute e 10° de inclinação, registre a leitura. Faça isso em 3 horários (9h, 12h, 15h) para capturar a trajetória solar.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Construa um mapa de calor</h4>
+        <p>Plote os dados em um gráfico polar ou matriz de cores. O ponto de máxima leitura indica a orientação ótima local.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Valide com energia real</h4>
+        <p>Compare a orientação encontrada com a produção de um mini-painel fotovoltaico nas mesmas condições — devem coincidir.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <strong>🌍 Fatores locais que afetam:</strong> Latitude, altitude, nebulosidade média, albedo do entorno (grama ~0,2, concreto ~0,3, neve ~0,8), poluição atmosférica e temperatura ambiente (painéis perdem ~0,4% de eficiência por °C acima de 25°C).
+  </div>
+</section>
+
+<!-- ============ SIMULADORES ============ -->
+<section id="simuladores">
+  <h2 class="section-title">🎮 Simuladores Interativos</h2>
+  <p class="section-subtitle">Ferramentas para explorar conceitos de radiação solar</p>
+
+  <!-- CONVERSOR DE UNIDADES -->
+  <div id="conversor" style="margin-bottom:3rem;"></div>
+
+  <!-- GRÁFICO DIURNO -->
+  <div id="grafico-diurno"></div>
+</section>
+
+<!-- ============ LIMITAÇÕES ============ -->
+<section id="limitacoes">
+  <h2 class="section-title">⚠️ Limitações dos Sensores</h2>
+  <p class="section-subtitle">O que LDRs e fotodiodos NÃO conseguem medir bem</p>
+
+  <div class="limit-grid">
+    <div class="limit-card">
+      <h4>🎨 Resposta Espectral Limitada</h4>
+      <p>Nenhum sensor responde igualmente a todos os comprimentos de onda. LDRs de CdS ignoram IR; fotodiodos de Si têm pico em 900 nm. A energia solar total inclui UV e IR, que podem ser sub ou superestimados.</p>
+    </div>
+    <div class="limit-card">
+      <h4>🌡️ Deriva Térmica</h4>
+      <p>A resistência do LDR varia drasticamente com a temperatura (coeficiente negativo). Fotodiodos têm dark current que dobra a cada ~10°C. Leituras ao sol podem ser afetadas pelo aquecimento do próprio sensor.</p>
+    </div>
+    <div class="limit-card">
+      <h4>📏 Não-Cosidealidade</h4>
+      <p>Sensores baratos não seguem perfeitamente a Lei do Cosseno para ângulos rasos. Leituras com sol baixo no horizonte podem ter erro de 20–50%.</p>
+    </div>
+    <div class="limit-card">
+      <h4>🔄 Não-Linearidade (LDR)</h4>
+      <p>A curva R×lux do LDR é uma potência, não linear. Calibrar para valores absolutos exige curva de calibração individual — cada unidade é diferente.</p>
+    </div>
+    <div class="limit-card">
+      <h4>☁️ Radiação Difusa</h4>
+      <p>Sob céu nublado, a luz vem de todas as direções. Sensores com campo de visão estreito subestimam a irradiância total. Piranômetros profissionais usam domos de vidro hemisféricos.</p>
+    </div>
+    <div class="limit-card">
+      <h4>🧓 Envelhecimento</h4>
+      <p>LDRs de CdS sofrem "memory effect" e fadiga sob exposição prolongada. Fotodiodos são mais estáveis, mas a lente epóxi pode amarelar com UV ao longo dos anos.</p>
+    </div>
+    <div class="limit-card">
+      <h4>📉 Saturação</h4>
+      <p>Sob sol direto do meio-dia, LDRs podem saturar (R mínima) e fotodiodos sem transimpedância adequada excedem a faixa do ADC. É necessário atenuação óptica ou elétrica.</p>
+    </div>
+    <div class="limit-card">
+      <h4>🌐 Calibração Metrológica</h4>
+      <p>Para medições em W/m² com precisão, é necessário calibrar contra um piranômetro de referência (ISO 9060). Sensores didáticos tipicamente têm erro de ±10 a ±30%.</p>
+    </div>
+  </div>
+
+  <div class="info-box" style="border-left-color: var(--success);">
+    <strong>✅ Alternativas profissionais:</strong> Para medição solar precisa, use <strong>piranômetros</strong> (termopilhas, espectro plano 300–3000 nm, classe ISO 9060 A/B/C) ou <strong>piranômetros fotovoltaicos</strong> com célula de Si calibrada e domo de vidro. Custo: R$ 500 a R$ 10.000+.
+  </div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="quiz">
+  <h2 class="section-title">🎓 Quiz Educativo</h2>
+  <p class="section-subtitle">Teste seus conhecimentos sobre sensores e radiação solar</p>
+  <div id="quiz-container"></div>
+</section>
+
+<!-- ============ CONCLUSÃO ============ -->
+<section>
+  <h2 class="section-title">🎓 Conclusão</h2>
+  <p class="section-subtitle">Síntese dos aprendizados</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-icon">🌞</div>
+      <h3>Física Sólida</h3>
+      <p>A radiação solar é uma fonte abundante e mensurável. Entender o espectro EM e as grandezas radiométricas é essencial para qualquer medição séria.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔧</div>
+      <h3>Sensor Certo, Problema Certo</h3>
+      <p>LDRs são didáticos e baratos; fotodiodos são precisos e lineares. Conhecer as limitações evita conclusões erradas em experimentos.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📈</div>
+      <h3>Aplicação Real</h3>
+      <p>Mapear a irradiância com sensores permite otimizar o posicionamento de coletores solares — economia real de energia e dinheiro.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🚀</div>
+      <h3>Próximos Passos</h3>
+      <p>Avance para data-loggers com Arduino/ESP32, integração com APIs de previsão solar (PVGIS, NASA POWER) e projetos de dimensionamento fotovoltaico.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="brand">☀️ SunSense</div>
+  <p>Sensores de Luz & Radiação Solar — Guia Educacional Interativo</p>
+  <div class="footer-links">
+    <a href="#espectro">Espectro EM</a>
+    <a href="#ldr">LDR</a>
+    <a href="#fotodiodo">Fotodiodo</a>
+    <a href="#coletor">Coletor Solar</a>
+    <a href="#simuladores">Simuladores</a>
+    <a href="#quiz">Quiz</a>
+  </div>
+  <p style="margin-top:1rem; font-size:0.85rem;">📅 Novembro de 2026 · Baseado em princípios da radiometria e normas IEC 60904 / ISO 9060</p>
+  <p style="font-size:0.8rem; margin-top:0.5rem;">Desenvolvido com ☀️ para fins educativos</p>
+</footer>
+
+<!-- SCRIPT SUNSENSE -->
+<script src="sunsense.js"></script>
+
+</body>
+</html>
