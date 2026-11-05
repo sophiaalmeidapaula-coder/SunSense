@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sensores de Luz & Radiação Solar | Guia Completo</title>
+<title>SunSense — Sensores de Luz & Radiação Solar</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
@@ -180,6 +180,7 @@
       #400000 100%);
     position: relative;
     margin: 2rem 0 1rem;
+    cursor: crosshair;
   }
   .spectrum-labels {
     display: flex;
@@ -364,13 +365,14 @@
 <header class="hero">
   <div class="sun"></div>
   <div class="hero-content">
-    <h1>Sensores de Luz & Radiação Solar</h1>
-    <p>Um mergulho profundo na física dos sensores fotoelétricos — LDRs, fotodiodos e sua aplicação na medição da energia que vem do Sol.</p>
+    <h1>☀️ SunSense</h1>
+    <p>Sensores de Luz & Radiação Solar — Um mergulho profundo na física dos sensores fotoelétricos e sua aplicação na medição da energia que vem do Sol.</p>
     <div class="tags">
       <span class="tag">☀️ Radiação Solar</span>
       <span class="tag">💡 LDR</span>
       <span class="tag">⚡ Fotodiodo</span>
       <span class="tag">📡 Espectro EM</span>
+      <span class="tag">🎮 Simuladores Interativos</span>
     </div>
   </div>
 </header>
@@ -384,7 +386,9 @@
     <li><a href="#comparacao">Comparação</a></li>
     <li><a href="#medicao">Medição</a></li>
     <li><a href="#coletor">Coletor Solar</a></li>
+    <li><a href="#simuladores">Simuladores</a></li>
     <li><a href="#limitacoes">Limitações</a></li>
+    <li><a href="#quiz">Quiz</a></li>
   </ul>
 </nav>
 
@@ -417,7 +421,7 @@
   </div>
 
   <div class="spectrum-container">
-    <h3 style="color:var(--accent); margin-bottom:0.5rem;">Espectro Eletromagnético</h3>
+    <h3 style="color:var(--accent); margin-bottom:0.5rem;">Espectro Eletromagnético <span style="font-size:0.9rem;color:var(--muted);">(passe o mouse para explorar)</span></h3>
     <p style="color:var(--muted); font-size:0.95rem;">O Sol emite em praticamente todo o espectro, mas ~99% da energia está concentrada entre 0,15 µm e 4 µm.</p>
     <div class="spectrum">
       <div class="spectrum-markers">
@@ -482,6 +486,9 @@
   <div class="formula">
     R(Lux) ≈ R₁₀ · (Lux / 10)<sup>-γ</sup> &nbsp; | &nbsp; Exemplo: CdS típico vai de ~1 MΩ (escuro) a ~100 Ω (10.000 lux)
   </div>
+
+  <!-- CONTAINER DO SIMULADOR LDR -->
+  <div id="sim-ldr" style="margin:2rem 0;"></div>
 
   <div class="diagram">
     <h3 style="color:var(--accent); margin-bottom:1rem;">Circuito Típico com LDR (Divisor de Tensão)</h3>
@@ -741,6 +748,12 @@
     </div>
   </div>
 
+  <!-- CONTAINER DA CALCULADORA SOLAR -->
+  <div id="calc-solar" style="margin:2rem 0;"></div>
+
+  <!-- CONTAINER DO SIMULADOR DE COLETOR -->
+  <div id="sim-coletor" style="margin:2rem 0;"></div>
+
   <h3 style="color:var(--accent); margin:2rem 0 1rem;">🔬 Experimento: Mapeamento com Sensor</h3>
   <div class="steps">
     <div class="step">
@@ -776,6 +789,18 @@
   <div class="info-box">
     <strong>🌍 Fatores locais que afetam:</strong> Latitude, altitude, nebulosidade média, albedo do entorno (grama ~0,2, concreto ~0,3, neve ~0,8), poluição atmosférica e temperatura ambiente (painéis perdem ~0,4% de eficiência por °C acima de 25°C).
   </div>
+</section>
+
+<!-- SIMULADORES ADICIONAIS -->
+<section id="simuladores">
+  <h2 class="section-title">🎮 Simuladores Interativos</h2>
+  <p class="section-subtitle">Ferramentas para explorar conceitos de radiação solar</p>
+
+  <!-- CONTAINER DO CONVERSOR -->
+  <div id="conversor" style="margin-bottom:3rem;"></div>
+
+  <!-- CONTAINER DO GRÁFICO DIURNO -->
+  <div id="grafico-diurno"></div>
 </section>
 
 <!-- LIMITAÇÕES -->
@@ -823,6 +848,13 @@
   </div>
 </section>
 
+<!-- QUIZ -->
+<section id="quiz">
+  <h2 class="section-title">🎓 Quiz Educativo</h2>
+  <p class="section-subtitle">Teste seus conhecimentos sobre sensores e radiação solar</p>
+  <div id="quiz"></div>
+</section>
+
 <!-- CONCLUSÃO -->
 <section>
   <h2 class="section-title">🎓 Conclusão</h2>
@@ -853,10 +885,13 @@
 </section>
 
 <footer>
-  <p class="accent">☀️ Sensores de Luz & Radiação Solar — Guia Educacional</p>
-  <p>Conteúdo elaborado para fins didáticos · Física, Eletrônica e Energia Renovável</p>
+  <p class="accent">☀️ SunSense — Sensores de Luz & Radiação Solar</p>
+  <p>Guia Educacional Interativo · Física, Eletrônica e Energia Renovável</p>
   <p style="margin-top:1rem; font-size:0.85rem;">📅 Novembro de 2026 · Baseado em princípios da radiometria e normas IEC 60904 / ISO 9060</p>
 </footer>
+
+<!-- SCRIPT SUNSENSE -->
+<script src="sunsense.js"></script>
 
 </body>
 </html>
